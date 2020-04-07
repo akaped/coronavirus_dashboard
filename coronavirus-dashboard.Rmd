@@ -232,13 +232,13 @@ daily_confirmed %>%
     mode = "lines+markers",
     name = "Belgium"
   ) %>%
-  plotly::add_trace(
-    x = ~date,
-    y = ~France,
-    type = "scatter",
-    mode = "lines+markers",
-    name = "France"
-  ) %>%
+  # plotly::add_trace(
+  #   x = ~date,
+  #   y = ~France,
+  #   type = "scatter",
+  #   mode = "lines+markers",
+  #   name = "France"
+  # ) %>%
   plotly::add_trace(
     x = ~date,
     y = ~Spain,

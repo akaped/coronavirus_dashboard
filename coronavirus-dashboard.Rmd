@@ -1,10 +1,11 @@
+
 ---
-title: "Coronavirus in Belgium"
-author: "Antoine Soetewey"
-output: 
+title: "COVID-2019 in ITALIA"
+author: "Pietro Boccaletto"
+output:
   flexdashboard::flex_dashboard:
     orientation: rows
-    # social: ["facebook", "twitter", "linkedin"]
+    #social: ["facebook", "twitter", "linkedin"]
     source_code: embed
     vertical_layout: fill
 ---
@@ -17,21 +18,21 @@ library(flexdashboard)
 library(coronavirus)
 data(coronavirus)
 update_datasets()
-# View(coronavirus)
-# max(coronavirus$date)
+#View(coronavirus)
+#max(coronavirus$date)
 
 `%>%` <- magrittr::`%>%`
 #------------------ Parameters ------------------
 # Set colors
 # https://www.w3.org/TR/css-color-3/#svg-color
-confirmed_color <- "purple"
-active_color <- "#1f77b4"
+confirmed_color <- "orange"
+active_color <- "blue"
 recovered_color <- "forestgreen"
 death_color <- "red"
 #------------------ Data ------------------
 df <- coronavirus %>%
-  # dplyr::filter(date == max(date)) %>%
-  dplyr::filter(Country.Region == "Belgium") %>%
+  dplyr::filter(date >= "2020-01-31") %>%
+  dplyr::filter(Country.Region == "Italy") %>%
   dplyr::group_by(Country.Region, type) %>%
   dplyr::summarise(total = sum(cases)) %>%
   tidyr::pivot_wider(
@@ -49,7 +50,8 @@ df <- coronavirus %>%
   dplyr::mutate(country = factor(country, levels = country))
 
 df_daily <- coronavirus %>%
-  dplyr::filter(Country.Region == "Belgium") %>%
+  dplyr::filter(date >= "2020-01-31") %>%
+  dplyr::filter(Country.Region == "Italy") %>%
   dplyr::group_by(date, type) %>%
   dplyr::summarise(total = sum(cases, na.rm = TRUE)) %>%
   tidyr::pivot_wider(
@@ -63,7 +65,7 @@ df_daily <- coronavirus %>%
   dplyr::mutate(
     confirmed_cum = cumsum(confirmed),
     death_cum = cumsum(death),
-    # recovered_cum = cumsum(recovered),
+    recovered_cum = cumsum(recovered),
     active_cum = cumsum(active)
   )
 
@@ -71,7 +73,7 @@ df_daily <- coronavirus %>%
 df1 <- coronavirus %>% dplyr::filter(date == max(date))
 ```
 
-Summary
+Sommario
 =======================================================================
 
 Row {data-width=400}
@@ -83,27 +85,28 @@ Row {data-width=400}
 
 valueBox(
   value = paste(format(sum(df$confirmed), big.mark = ","), "", sep = " "),
-  caption = "Total confirmed cases",
+  caption = "Casi Totali Confermati",
   icon = "fas fa-user-md",
   color = confirmed_color
 )
 ```
 
+<!--
+### active {.value-box}
 
-<!-- ### active {.value-box} -->
-
-<!-- ```{r} -->
-<!-- valueBox( -->
-<!--   value = paste(format(sum(df$unrecovered, na.rm = TRUE), big.mark = ","), " (", -->
-<!--     round(100 * sum(df$unrecovered, na.rm = TRUE) / sum(df$confirmed), 1), -->
-<!--     "%)", -->
-<!--     sep = "" -->
-<!--   ), -->
-<!--   caption = "Active cases (% of total cases)", icon = "fas fa-ambulance", -->
-<!--   color = active_color -->
-<!-- ) -->
-<!-- ``` -->
-
+```{r}
+valueBox(
+     value = paste(format(sum(df$unrecovered, na.rm = TRUE), big.mark = ","), " (",
+     round(100 * sum(df$unrecovered, na.rm = TRUE) / sum(df$confirmed), 1), 
+     "%)", 
+     sep = "" 
+   ), 
+   caption = "Casi attivi (% casi)", 
+   icon = "fas fa-ambulance", 
+   color = active_color 
+ ) 
+```
+-->
 ### death {.value-box}
 
 ```{r}
@@ -114,18 +117,35 @@ valueBox(
     "%)",
     sep = ""
   ),
-  caption = "Death cases (death rate)",
-  icon = "fas fa-heart-broken",
+  caption = "Casi di morte (% di mortalità)",
+  icon = "fas fa-feather",
   color = death_color
 )
 ```
+
+### recovered {.value-box}
+
+```{r}
+
+valueBox(
+  value = paste(format(sum(df$recovered, na.rm = TRUE), big.mark = ","), " (",
+    round(100 * sum(df$recovered, na.rm = TRUE) / sum(df$confirmed), 1),
+    "%)",
+    sep = ""
+  ),
+  caption = "Guariti (% guariti)",
+  icon = "fas fa-heart",
+  color = recovered_color
+)
+```
+
 
 
 Row
 -----------------------------------------------------------------------
 
-### **Daily cumulative cases by type** (Belgium only)
-    
+### **Casi cumulativi giornalieri per tipo** (Italia)
+
 ```{r}
 plotly::plot_ly(data = df_daily) %>%
   plotly::add_trace(
@@ -135,23 +155,32 @@ plotly::plot_ly(data = df_daily) %>%
     type = "scatter",
     mode = "lines+markers",
     # name = "Active",
-    name = "Confirmed",
-    line = list(color = active_color),
-    marker = list(color = active_color)
+    name = "Confermati",
+    line = list(color = confirmed_color),
+    marker = list(color = confirmed_color)
   ) %>%
   plotly::add_trace(
     x = ~date,
     y = ~death_cum,
     type = "scatter",
     mode = "lines+markers",
-    name = "Death",
+    name = "Morti",
     line = list(color = death_color),
     marker = list(color = death_color)
   ) %>%
+  plotly::add_trace(
+    x = ~date,
+    y = ~recovered_cum,
+    type = "scatter",
+    mode = "lines+markers",
+    name = "Guariti",
+    line = list(color = recovered_color),
+    marker = list(color = recovered_color)
+  ) %>%
   plotly::add_annotations(
-    x = as.Date("2020-02-04"),
+    x = as.Date("2020-01-31"),
     y = 1,
-    text = paste("First case"),
+    text = paste("Primo Caso"),
     xref = "x",
     yref = "y",
     arrowhead = 5,
@@ -162,9 +191,9 @@ plotly::plot_ly(data = df_daily) %>%
     ay = -90
   ) %>%
   plotly::add_annotations(
-    x = as.Date("2020-03-11"),
+    x = as.Date("2020-02-22"),
     y = 3,
-    text = paste("First death"),
+    text = paste("Prima Morte"),
     xref = "x",
     yref = "y",
     arrowhead = 5,
@@ -174,13 +203,14 @@ plotly::plot_ly(data = df_daily) %>%
     ax = -90,
     ay = -90
   ) %>%
-  plotly::add_annotations(
-    x = as.Date("2020-03-18"),
+  
+    plotly::add_annotations(
+    x = as.Date("2020-03-9"),
     y = 14,
     text = paste(
-      "New containment",
+      "Misure di contenimento",
       "<br>",
-      "measures"
+      "estese a tutta l'Italia"
     ),
     xref = "x",
     yref = "y",
@@ -189,18 +219,18 @@ plotly::plot_ly(data = df_daily) %>%
     arrowsize = 1,
     showarrow = TRUE,
     ax = -10,
-    ay = -90
+    ay = -110
   ) %>%
   plotly::layout(
     title = "",
-    yaxis = list(title = "Cumulative number of cases"),
-    xaxis = list(title = "Date"),
+    yaxis = list(title = "Numero cumulativo dei casi"),
+    xaxis = list(title = "Data"),
     legend = list(x = 0.1, y = 0.9),
     hovermode = "compare"
   )
 ```
 
-Comparison
+in Europa
 =======================================================================
 
 
@@ -208,8 +238,8 @@ Column {data-width=400}
 -------------------------------------
 
 
-### **Daily new confirmed cases**
-    
+### **Nuovi casi confermati giornalmente**
+
 ```{r}
 daily_confirmed <- coronavirus %>%
   dplyr::filter(type == "confirmed") %>%
@@ -227,18 +257,18 @@ daily_confirmed %>%
   plotly::plot_ly() %>%
   plotly::add_trace(
     x = ~date,
-    y = ~Belgium,
+    y = ~Italy,
     type = "scatter",
     mode = "lines+markers",
-    name = "Belgium"
+    name = "Italia"
   ) %>%
-  # plotly::add_trace(
-  #   x = ~date,
-  #   y = ~France,
-  #   type = "scatter",
-  #   mode = "lines+markers",
-  #   name = "France"
-  # ) %>%
+   plotly::add_trace(
+     x = ~date,
+     y = ~Germany,
+     type = "scatter",
+     mode = "lines+markers",
+     name = "Germania"
+   ) %>%
   plotly::add_trace(
     x = ~date,
     y = ~Spain,
@@ -248,16 +278,16 @@ daily_confirmed %>%
   ) %>%
   plotly::add_trace(
     x = ~date,
-    y = ~Italy,
+    y = ~France,
     type = "scatter",
     mode = "lines+markers",
-    name = "Italy"
+    name = "Francia"
   ) %>%
   plotly::layout(
     title = "",
     legend = list(x = 0.1, y = 0.9),
-    yaxis = list(title = "Number of new confirmed cases"),
-    xaxis = list(title = "Date"),
+    yaxis = list(title = "Numbero di nuovi casi confermati"),
+    xaxis = list(title = "Data"),
     # paper_bgcolor = "black",
     # plot_bgcolor = "black",
     # font = list(color = 'white'),
@@ -271,15 +301,15 @@ daily_confirmed %>%
     )
   )
 ```
- 
-### **Cases distribution by type**
+
+### **Distribuzione dei casi per tipo**
 
 ```{r daily_summary}
 df_EU <- coronavirus %>%
   # dplyr::filter(date == max(date)) %>%
-  dplyr::filter(Country.Region == "Belgium" |
-    Country.Region == "France" |
-    Country.Region == "Italy" |
+  dplyr::filter(Country.Region == "Italy" |
+    Country.Region == "France" | 
+    Country.Region == "Germany"|
     Country.Region == "Spain") %>%
   dplyr::group_by(Country.Region, type) %>%
   dplyr::summarise(total = sum(cases)) %>%
@@ -305,19 +335,19 @@ plotly::plot_ly(
   # text =  ~ confirmed,
   # textposition = 'auto',
   type = "bar",
-  name = "Confirmed",
+  name = "Confermati",
   marker = list(color = active_color)
 ) %>%
   plotly::add_trace(
     y = ~death,
     # text =  ~ death,
     # textposition = 'auto',
-    name = "Death",
+    name = "Morti",
     marker = list(color = death_color)
   ) %>%
   plotly::layout(
     barmode = "stack",
-    yaxis = list(title = "Total cases"),
+    yaxis = list(title = "Casi totali"),
     xaxis = list(title = ""),
     hovermode = "compare",
     margin = list(
@@ -331,10 +361,10 @@ plotly::plot_ly(
 ```
 
 
-Map
+Mappa dei contagi
 =======================================================================
 
-### **World map of cases** (*use + and - icons to zoom in/out*)
+### **Mappa mondiale dei contagi** (*Utilizza le icone + e - per ingrandire o rimpicciolire *)
 
 ```{r}
 # map tab added by Art Steinmetz
@@ -387,38 +417,47 @@ map_object %>%
 
 
 
-About
+A riguardo
 =======================================================================
 
-**The Coronavirus Dashboard: the case of Belgium**
+**Coronavirus Dashboard: il caso in Italia**
 
-This Coronavirus dashboard: the case of Belgium provides an overview of the 2019 Novel Coronavirus COVID-19 (2019-nCoV) epidemic for Belgium. This dashboard is built with R using the R Makrdown framework and was adapted from this [dashboard](https://ramikrispin.github.io/coronavirus_dashboard/){target="_blank"} by Rami Krispin.
+Questa Dashboard vuole essere un aiuto alla popolazione Italiana di tenersi aggiornata a riguardo la pandemia mondiale data da COVID-19, causata dal virus SARS-CoV-2 ( 2019 severe acute respiratory syndrome coronavirus 2 ).
+Con focus sulla situazione Italiana, in confronto ai paesi Europei che ci stanno vicino, come Germania, Spagna e Francia.  
 
-**Code**
 
-The code behind this dashboard is available on [GitHub](https://github.com/AntoineSoetewey/coronavirus_dashboard){target="_blank"}.
+La Dashboard è un estratto del lavoro di Rami Krispin consultabile qui:
+[dashboard](https://ramikrispin.github.io/coronavirus_dashboard/){target="_blank"}
+e delle sue modifiche apportate da Antoine Soetewey per il Belgio:
+[Belgium Dashboard](https://github.com/AntoineSoetewey/coronavirus_dashboard){target="_blank"}
 
-**Data**
+Io ho implementato alcune modifiche necessarie per personalizzare e calcolare i dati per il nostro paese l'Italia. 
 
-The input data for this dashboard is the dataset available from the [`{coronavirus}`](https://github.com/RamiKrispin/coronavirus){target="_blank"} R package. Make sure to download the development version of the package to have the latest data:
 
-```
-install.packages("devtools")
-devtools::install_github("RamiKrispin/coronavirus")
-```
 
-The data and dashboard are refreshed on a daily basis.
 
-The raw data is pulled from the Johns Hopkins University Center for Systems Science and Engineering (JHU CCSE) Coronavirus [repository](https://github.com/RamiKrispin/coronavirus-csv){target="_blank"}.
+**Codice**
 
-**Contact**
+Questo sito è stato sviluppato in R, un linguaggio di programmazione orientato alla statistica e il framework R Markdown. Il codice di questa Dashboard è disponibile su GitHub [GitHub](https://github.com/akaped/coronavirus_dashboard_italy){target="_blank"} ed è liberamente modificabile.
 
-For any question or feedback, you can [contact me](https://www.statsandr.com/contact/). More information about this dashboard can be found in this [article](https://www.statsandr.com/blog/how-to-create-a-simple-coronavirus-dashboard-specific-to-your-country-in-r/).
 
-**Update**
+**Dati**
 
-The data is as of `r format(max(coronavirus$date), "%A %B %d, %Y")` and the dashboard has been updated on `r format(Sys.time(), "%A %B %d, %Y")`.
+I dati che vengono utilizzati da questa dashboard fanno parte del pacchetto R sul coronavirus e vengono aggiornati quotidianamente, come anche la dashboard. I dati grezzi sono prelevati dal Johns Hopkins University Center for Systems Science and Engineering (JHU CCSE) Coronavirus [repository](https://github.com/RamiKrispin/coronavirus-csv).
 
-<br>
 
-*Go back to [www.statsandr.com](https://www.statsandr.com/) (blog) or [www.antoinesoetewey.com](https://www.antoinesoetewey.com/) (personal website)*.
+**Sul Autore**
+
+Mi chiamo Pietro Boccaletto, sono un Biologo che si occupa di Bioinformatica nel campo degli RNA non codificanti. Sviluppo e mantengo tools e database che sono d'aiuto al avanzamento della ricerca scientifica.
+
+
+
+
+**Contatti**
+
+Per ogni domanda o Feedback, potete contattarmi a questo indirizzo email:
+<p><a href="url"><img src="https://r3dqu33n-var.000webhostapp.com/img/email-antispam.jpg" align="left" height="20" width="250" ></a></p>
+
+
+
+

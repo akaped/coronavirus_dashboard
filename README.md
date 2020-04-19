@@ -3,6 +3,7 @@
 
 **The Coronavirus Dashboard: the case of Italy**
 
+
 This Coronavirus dashboard: the case of Italy provides a daily updated overview of
 the coronavirus disease (COVID-19) epidemic for Italy, caused by 2019 severe acute respiratory syndrome coronavirus 2 
 (SARS-CoV-2) virus.

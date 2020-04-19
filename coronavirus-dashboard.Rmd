@@ -336,7 +336,7 @@ plotly::plot_ly(
   # textposition = 'auto',
   type = "bar",
   name = "Confermati",
-  marker = list(color = active_color)
+  marker = list(color = confirmed_color)
 ) %>%
   plotly::add_trace(
     y = ~death,
@@ -419,6 +419,11 @@ map_object %>%
 
 A riguardo
 =======================================================================
+
+```{r}
+sprintf("%s - Grafici e dati aggiornati e ricalcolati automaticamente.", date())
+```
+
 
 **Coronavirus Dashboard: il caso in Italia**
 

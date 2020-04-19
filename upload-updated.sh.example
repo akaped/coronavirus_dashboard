@@ -1,0 +1,7 @@
+#!/bin/sh
+
+#This script is executed by my crontab every 2 hours.
+
+cd ~/opt/coronavirus_dashboard_italy/
+rscript -e "rmarkdown::render('~/opt/coronavirus_dashboard_italy/coronavirus-dashboard.Rmd',output_file='index.html')"
+curl -T index.html ftp://FTPADDRESS --user USERNAME:PASSWORD
